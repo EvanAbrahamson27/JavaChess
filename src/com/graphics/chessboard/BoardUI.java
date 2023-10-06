@@ -4,6 +4,7 @@ import com.chess.pieces.*;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
@@ -49,21 +50,25 @@ public class BoardUI extends Application {
 
                 board.getChildren().add(square);
 
-                if (b.board[col][row] != null) {
+                if (b.board[col][7 - row] != null) {
                     ImageView imageView;
-                    if (b.board[col][row].getClass() == Pawn.class) {
+                    if (b.board[col][7 - row].getClass() == Pawn.class) {
                         imageView = new ImageView(pawnImage);
-                    } else if (b.board[col][row].getClass() == Knight.class) {
+                    } else if (b.board[col][7 - row].getClass() == Knight.class) {
                         imageView = new ImageView(knightImage);
-                    } else if (b.board[col][row].getClass() == Bishop.class) {
+                    } else if (b.board[col][7 - row].getClass() == Bishop.class) {
                         imageView = new ImageView(bishopImage);
-                    } else if (b.board[col][row].getClass() == King.class) {
+                    } else if (b.board[col][7 - row].getClass() == King.class) {
                         imageView = new ImageView(kingImage);
-                    } else if (b.board[col][row].getClass() == Queen.class) {
+                    } else if (b.board[col][7 - row].getClass() == Queen.class) {
                         imageView = new ImageView(queenImage);
                     } else {
                         imageView = new ImageView(rookImage);
                     }
+                    if (b.board[col][7 - row].getTeam() == 1) {
+                        imageView.setBlendMode(BlendMode.DARKEN);
+                    }
+                    imageView.setMouseTransparent(true);
                     imageView.setLayoutX(col * size);
                     imageView.setLayoutY(row * size);
                     imageView.setPickOnBounds(false);
@@ -94,15 +99,20 @@ public class BoardUI extends Application {
                                 imageView = new ImageView(kingImage);
                             } else if (b.board[col][row].getClass() == Queen.class) {
                                 imageView = new ImageView(queenImage);
-                            } else if (b.board[col][row].getClass() == Queen.class) {
+                            } else if (b.board[col][row].getClass() == Rook.class) {
                                 imageView = new ImageView(rookImage);
                             }
+
+                            if (b.board[col][row].getTeam() == 1) {
+                                imageView.setBlendMode(BlendMode.BLUE);
+                            }
+                            imageView.setMouseTransparent(true);
                             imageViewGrid[col][row] = imageView;
                             board.getChildren().add(imageView);
                         }
 
                         imageView.setLayoutX(col * size);
-                        imageView.setLayoutY(840 - row * size);
+                        imageView.setLayoutY((7 -row) * size);
                     } else {
                         if (imageView != null) {
                             board.getChildren().remove(imageView);
@@ -125,11 +135,15 @@ public class BoardUI extends Application {
             }
         } else {
             b.move(selectedPiece, col - selectedPiece.getX(), (7 - row - selectedPiece.getY()));
+            if (selectedPiece.getKill() == true) {
+                b.move(selectedPiece, col - selectedPiece.getX(), (7 - row - selectedPiece.getY()));
+                selectedPiece.setKill(false);
+            }
             System.out.println(b.toString());
             selectedPiece.getRectangle().setFill(selectedPieceColor);
             selectedPiece = null;
             selectedPieceColor = null;
-            updateDisplayedPieces();
+            createChessBoard();
         }
     }
 
@@ -141,7 +155,7 @@ public class BoardUI extends Application {
         Group board = createChessBoard();
         root.getChildren().add(board);
 
-        stage.setTitle("Chess");
+        stage.setTitle("Java Chess");
         stage.setScene(scene);
         stage.show();
     }

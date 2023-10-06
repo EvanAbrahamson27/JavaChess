@@ -1,9 +1,15 @@
 package com.chess.pieces;
 
+import java.util.Random;
+
 public class Board {
     public static final int X = 8;
     public static final int Y = 8;
     public Piece[][] board;
+    private Random random = new Random();
+
+    // Generate a random int (0 or 1)
+    public int teamTurn = random.nextInt(2);
 
     public Board() {
         board = new Piece[X][Y];
@@ -20,8 +26,8 @@ public class Board {
         board[0][7] = new Rook(0,7);
         board[7][0] = new Rook(7,0);
         board[7][7] = new Rook(7,7);
-        board[2][0] = new Bishop(2,7);
-        board[5][0] = new Bishop(5,7);
+        board[2][0] = new Bishop(2,0);
+        board[5][0] = new Bishop(5,0);
         board[2][7] = new Bishop(2,7);
         board[5][7] = new Bishop(5,7);
         board[4][0] = new King(4,0);
@@ -39,6 +45,11 @@ public class Board {
     public void move(Piece p, int x, int y) {
         // If there's no piece, don't do anything
         if (p == null) {
+            return;
+        }
+
+        if (teamTurn != p.getTeam()) {
+            System.out.println("Not your turn!");
             return;
         }
 
@@ -89,6 +100,15 @@ public class Board {
         if (x > 0 && y == 0) {
             for (int i = tempX + 1; i <= (tempX + x); i++) {
                 if (board[i][p.getY()] != null) {
+                    if ((p.getClass().equals(King.class) || p.getClass().equals(Rook.class)
+                            || p.getClass().equals(Queen.class))
+                            && p.getTeam() != board[i][p.getY()].getTeam() && p.getTeam() == 1) {
+                        p.attack(board[i][p.getY()]);
+                        board[i][p.getY()] = null;
+                        p.setKill(true);
+                        teamSwitch();
+                        break;
+                    }
                     p.setX(tempX);
                     p.setY(tempY);
                     System.out.println("Piece in the way! >");
@@ -102,6 +122,15 @@ public class Board {
             for (int i = tempX + 1; i <= (tempX + x); i++) {
                 for (int j = tempY + 1; j <= (tempY + y); j++){
                     if (board[i][j] != null) {
+                        if ((p.getClass().equals(Pawn.class) || p.getClass().equals(Bishop.class)
+                                || p.getClass().equals(Queen.class))
+                                && p.getTeam() != board[i][j].getTeam() && p.getTeam() == 0) {
+                            p.attack(board[i][j]);
+                            board[i][j] = null;
+                            p.setKill(true);
+                            teamSwitch();
+                            break;
+                        }
                         p.setX(tempX);
                         p.setY(tempY);
                         System.out.println("Piece in the way! ^>");
@@ -116,6 +145,15 @@ public class Board {
             for (int i = tempX - 1; i >= (tempX + x); i--) {
                 for (int j = tempY + 1; j <= (tempY + y); j++){
                     if (board[i][j] != null) {
+                        if ((p.getClass().equals(Pawn.class) || p.getClass().equals(Bishop.class)
+                                || p.getClass().equals(Queen.class))
+                                && p.getTeam() != board[i][j].getTeam() && p.getTeam() == 0) {
+                            p.attack(board[i][j]);
+                            board[i][j] = null;
+                            p.setKill(true);
+                            teamSwitch();
+                            break;
+                        }
                         p.setX(tempX);
                         p.setY(tempY);
                         System.out.println("Piece in the way! <^");
@@ -130,6 +168,15 @@ public class Board {
             for (int i = tempX + 1; i <= (tempX + x); i++) {
                 for (int j = tempY - 1; j >= (tempY + y); j--){
                     if (board[i][j] != null) {
+                        if ((p.getClass().equals(Pawn.class) || p.getClass().equals(Bishop.class)
+                                || p.getClass().equals(Queen.class))
+                                && p.getTeam() != board[i][j].getTeam() && p.getTeam() == 1) {
+                            p.attack(board[i][j]);
+                            board[i][j] = null;
+                            p.setKill(true);
+                            teamSwitch();
+                            break;
+                        }
                         p.setX(tempX);
                         p.setY(tempY);
                         System.out.println("Piece in the way! v>");
@@ -144,6 +191,15 @@ public class Board {
             for (int i = tempX - 1; i >= (tempX + x); i--) {
                 for (int j = tempY - 1; j >= (tempY + y); j--){
                     if (board[i][j] != null) {
+                        if ((p.getClass().equals(Pawn.class) || p.getClass().equals(Bishop.class)
+                                || p.getClass().equals(Queen.class))
+                                && p.getTeam() != board[i][j].getTeam() && p.getTeam() == 1) {
+                            p.attack(board[i][j]);
+                            board[i][j] = null;
+                            p.setKill(true);
+                            teamSwitch();
+                            break;
+                        }
                         p.setX(tempX);
                         p.setY(tempY);
                         System.out.println("Piece in the way! <v");
@@ -156,6 +212,17 @@ public class Board {
         // Update the board
         board[tempX][tempY] = null;
         board[p.getX()][p.getY()] = p;
+        if (p.getMoveFail() == false) {
+            teamSwitch();
+        }
+    }
+
+    public void teamSwitch() {
+        if (teamTurn == 0) {
+            teamTurn = 1;
+        } else {
+            teamTurn = 0;
+        }
     }
 
     public String toString() {
